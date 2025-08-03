@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .container {
+            max-width: 800px !important;
+        }
+        
+        .review-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .review-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .review-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .review-content::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+        
+        .urgency-section {
+            margin-bottom: 32px;
+        }
+        
+        .urgency-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .high-urgency {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+        
+        .medium-urgency {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            color: #2d3748;
+        }
+        
+        .low-urgency {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
+            color: white;
+        }
+        
+        .issue-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .issue-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+        
+        .issue-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .issue-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+        
+        .issue-team {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .issue-description {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .issue-number {
+            position: absolute;
+            top: -8px;
+            left: 16px;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .back-btn i {
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .review-content {
+                max-height: 50vh;
+            }
+            
+            .issue-item {
+                padding: 16px;
+            }
+            
+            .back-btn {
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="form-wrapper">
+            <div class="header">
+                <div class="icon-wrapper">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h1>Review Dashboard</h1>
+                <p>Current issues and their priority levels</p>
+            </div>
+            
+            <div class="review-content">
+                <!-- High Urgency Section -->
+                <div class="urgency-section">
+                    <div class="urgency-header high-urgency">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        High Urgency
+                    </div>
+                    
+                    <div class="issue-item">
+                        <div class="issue-number">1</div>
+                        <div class="issue-header">
+                            <span class="issue-name">George Wilson</span>
+                            <span class="issue-team">Dev Team</span>
+                        </div>
+                        <div class="issue-description">
+                            High frequency of failed deployments causing significant downtime and urgent hotfixes.
+                        </div>
+                    </div>
+                    
+                    <div class="issue-item">
+                        <div class="issue-number">2</div>
+                        <div class="issue-header">
+                            <span class="issue-name">Liam Neeson</span>
+                            <span class="issue-team">Dev Team</span>
+                        </div>
+                        <div class="issue-description">
+                            Key new feature release on hold due to missing backend API endpoints causing delays.
+                        </div>
+                    </div>
+                    
+                    <div class="issue-item">
+                        <div class="issue-number">3</div>
+                        <div class="issue-header">
+                            <span class="issue-name">Julia Adams</span>
+                            <span class="issue-team">Dev Team</span>
+                        </div>
+                        <div class="issue-description">
+                            Slow response times from user authentication API degrading user experience and performance.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medium Urgency Section -->
+                <div class="urgency-section">
+                    <div class="urgency-header medium-urgency">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Medium Urgency
+                    </div>
+                    
+                    <div class="issue-item">
+                        <div class="issue-number">1</div>
+                        <div class="issue-header">
+                            <span class="issue-name">Marie Curie</span>
+                            <span class="issue-team">R&D</span>
+                        </div>
+                        <div class="issue-description">
+                            Issues scaling up production of a new material including inconsistent properties and high costs.
+                        </div>
+                    </div>
+                    
+                    <div class="issue-item">
+                        <div class="issue-number">2</div>
+                        <div class="issue-header">
+                            <span class="issue-name">Alan Turing</span>
+                            <span class="issue-team">R&D</span>
+                        </div>
+                        <div class="issue-description">
+                            Drop in performance of recommendation algorithm affecting personalized user experiences.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Low Urgency Section -->
+                <div class="urgency-section">
+                    <div class="urgency-header low-urgency">
+                        <i class="fas fa-info-circle"></i>
+                        Low Urgency
+                    </div>
+                    
+                    <div class="issue-item">
+                        <div class="issue-number">1</div>
+                        <div class="issue-header">
+                            <span class="issue-name">Alice Johnson</span>
+                            <span class="issue-team">UI/UX</span>
+                        </div>
+                        <div class="issue-description">
+                            Fragmented UI/UX design system causing inconsistent interfaces and slowing development cycles.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="background-decoration">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+            <div class="circle circle-3"></div>
+        </div>
+    </div>
+</body>
+</html> 

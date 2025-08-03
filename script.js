@@ -4,6 +4,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = form.querySelector('.submit-btn');
     const notification = document.getElementById('notification');
     
+    // Set current date in the date field
+    const dateField = document.getElementById('field2');
+    if (dateField) {
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        dateField.value = formattedDate;
+    }
+    
     // Form submission handler
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -13,7 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = {
             field1: formData.get('field1'),
             field2: formData.get('field2'),
-            field3: formData.get('field3')
+            field3: formData.get('field3'),
+            field4: formData.get('field4')
         };
         
         // Validate form
@@ -51,44 +64,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
         // Check if all fields are filled
-        if (!data.field1.trim() || !data.field2.trim() || !data.field3.trim()) {
-            return false;
-        }
-        
-        // Validate email format
-        if (!emailRegex.test(data.field2)) {
+        if (!data.field1.trim() || !data.field2.trim() || !data.field3.trim() || !data.field4.trim()) {
             return false;
         }
         
         return true;
     }
     
-    // Simulate API call (replace with actual API integration)
+    // API call to webhook endpoint
     async function simulateApiCall(data) {
-        // TODO: Replace this simulation with actual API call
-        // Example:
-        // const response = await fetch('YOUR_API_ENDPOINT', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(data)
-        // });
-        // 
-        // if (!response.ok) {
-        //     throw new Error('API call failed');
-        // }
-        // 
-        // return await response.json();
-        
-        console.log('Form data that would be sent to API:', data);
-        
-        // Simulate network delay
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ success: true, message: 'Data received successfully' });
-            }, 1500);
-        });
+        try {
+            const response = await fetch('https://kenji224.app.n8n.cloud/webhook-test/f9902862-f9de-452c-b8a5-69fe2a047823', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('Webhook response:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('Webhook call failed:', error);
+            throw error;
+        }
     }
     
     // Loading state management
@@ -167,11 +172,13 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'field1': // Name validation
                 isValid = value.length >= 2;
                 break;
-            case 'field2': // Email validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                isValid = emailRegex.test(value);
+            case 'field2': // Date validation
+                isValid = value.length > 0;
                 break;
-            case 'field3': // Message validation
+            case 'field3': // Department validation
+                isValid = value.length >= 2;
+                break;
+            case 'field4': // Issue validation
                 isValid = value.length >= 10;
                 break;
         }
