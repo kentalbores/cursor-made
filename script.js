@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // API call to webhook endpoint
     async function simulateApiCall(data) {
         try {
-            const response = await fetch('https://kenji224.app.n8n.cloud/webhook-test/f9902862-f9de-452c-b8a5-69fe2a047823', {
+            const response = await fetch('https://kenji224.app.n8n.cloud/webhook/f9902862-f9de-452c-b8a5-69fe2a047823', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
