@@ -4,17 +4,112 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = form.querySelector('.submit-btn');
     const notification = document.getElementById('notification');
     
-    // Set current date in the date field
+    // Store fetched user data
+    let validUsers = [];
+    
+    // Function to set current date in the date field
+    function setCurrentDate() {
+        const dateField = document.getElementById('field2');
+        if (dateField) {
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            console.log('Setting date field to:', formattedDate);
+            dateField.value = formattedDate;
+            
+            // Force the value to stick by setting it again after a brief delay
+            setTimeout(() => {
+                if (dateField.value !== formattedDate) {
+                    console.log('Date field changed, resetting to:', formattedDate);
+                    dateField.value = formattedDate;
+                }
+            }, 10);
+        }
+    }
+    
+    // Set current date initially
+    setCurrentDate();
+    
+    // Protect the date field from being changed
     const dateField = document.getElementById('field2');
     if (dateField) {
-        const today = new Date();
-        const formattedDate = today.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+        // Prevent manual changes to the date field
+        dateField.addEventListener('input', function(e) {
+            e.preventDefault();
+            setCurrentDate();
         });
-        dateField.value = formattedDate;
+        
+        // Prevent pasting into the date field
+        dateField.addEventListener('paste', function(e) {
+            e.preventDefault();
+            setCurrentDate();
+        });
+        
+        // Monitor for any changes and reset if needed
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                    const currentValue = dateField.value;
+                    const today = new Date();
+                    const expectedFormat = today.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    if (currentValue !== expectedFormat) {
+                        console.log('Date field changed unexpectedly, resetting...');
+                        setCurrentDate();
+                    }
+                }
+            });
+        });
+        
+        observer.observe(dateField, {
+            attributes: true,
+            attributeFilter: ['value']
+        });
     }
+    
+    // Fetch valid users on page load
+    async function fetchValidUsers() {
+        try {
+            console.log('Fetching valid users...');
+            const response = await fetch('http://localhost:5678/webhook-test/f9902862-f9de-452c-b8a5-69fe2a047823', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            // const response = await fetch('http://localhost:5678/webhook/f9902862-f9de-452c-b8a5-69fe2a047823', {
+            //     method: 'GET',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     }
+            // });
+            
+            
+            if (response.status < 200 || response.status >= 300) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const users = await response.json();
+            console.log('Fetched users:', users);
+            
+            validUsers = users;
+            console.log('Valid users loaded:', validUsers.length);
+            
+        } catch (error) {
+            console.error('Failed to fetch valid users:', error);
+            showNotification('Failed to load user data. Please refresh the page.', 'error');
+        }
+    }
+    
+    // Load valid users when page loads
+    fetchValidUsers();
     
     // Form submission handler
     form.addEventListener('submit', async function(e) {
@@ -22,11 +117,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Get form data
         const formData = new FormData(form);
+        const enteredName = formData.get('field1').trim();
+        
+        // Find the user data for the entered name
+        const userData = validUsers.find(user => user.name.toLowerCase() === enteredName.toLowerCase());
+        
+        if (!userData) {
+            showNotification('Invalid name. Please enter a valid name from the system.', 'error');
+            return;
+        }
+        
         const data = {
-            field1: formData.get('field1'),
-            field2: formData.get('field2'),
-            field3: formData.get('field3'),
-            field4: formData.get('field4')
+            field1: enteredName,               // name
+            field2: formData.get('field2'),    // date
+            field3: formData.get('field3'),    // report
+            dep: userData.dep                  // department from fetched data
         };
         
         // Validate form
@@ -48,12 +153,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset form after successful submission
             setTimeout(() => {
                 form.reset();
+                // Wait a moment for form reset to complete, then set date
+                setTimeout(() => {
+                    setCurrentDate(); // Re-set the date after form reset
+                }, 50);
                 hideNotification();
             }, 2000);
             
         } catch (error) {
             console.error('API call failed:', error);
-            showNotification('Failed to submit form. Please try again.', 'error');
+            // Show specific error message if available
+            const errorMessage = error.message || 'Failed to submit form. Please try again.';
+            showNotification(errorMessage, 'error');
         } finally {
             setLoadingState(false);
         }
@@ -61,20 +172,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form validation
     function validateForm(data) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
         // Check if all fields are filled
-        if (!data.field1.trim() || !data.field2.trim() || !data.field3.trim() || !data.field4.trim()) {
+        if (!data.field1.trim() || !data.field2.trim() || !data.field3.trim()) {
             return false;
         }
         
+        // Name validation is already done in form submission handler
         return true;
     }
     
     // API call to webhook endpoint
     async function simulateApiCall(data) {
         try {
-            const response = await fetch('https://kenji224.app.n8n.cloud/webhook/f9902862-f9de-452c-b8a5-69fe2a047823', {
+            console.log('Sending data to webhook:', data);
+            const response = await fetch('http://localhost:5678/webhook-test/f9902862-f9de-452c-b8a5-69fe2a047823', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,16 +193,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(data)
             });
             
-            if (!response.ok) {
+            console.log('Webhook response status:', response.status);
+            console.log('Webhook response ok:', response.ok);
+            
+            // n8n webhooks often return 200, 201, or other success codes
+            // Check for any 2xx status code (200-299)
+            if (response.status < 200 || response.status >= 300) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const result = await response.json();
-            console.log('Webhook response:', result);
+            // Try to parse JSON, but don't fail if it's not JSON
+            let result = {};
+            try {
+                const text = await response.text();
+                console.log('Webhook response text:', text);
+                if (text.trim()) {
+                    result = JSON.parse(text);
+                }
+            } catch (jsonError) {
+                console.log('Response is not JSON, but that\'s okay for webhooks');
+                result = { success: true, message: 'Webhook executed successfully' };
+            }
+            
+            console.log('Webhook final result:', result);
             return result;
             
         } catch (error) {
             console.error('Webhook call failed:', error);
+            
+            // Check if it's a network error (endpoint not available)
+            if (error.name === 'TypeError' && (
+                error.message.includes('fetch') || 
+                error.message.includes('Failed to fetch') ||
+                error.message.includes('Network request failed')
+            )) {
+                throw new Error('Unable to connect to server. Please check if the webhook endpoint is running.');
+            }
+            
+            // If it's any other error, re-throw it
             throw error;
         }
     }
@@ -170,15 +309,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         switch (fieldName) {
             case 'field1': // Name validation
-                isValid = value.length >= 2;
+                // Check if name exists in valid users (case insensitive)
+                isValid = value.length >= 2 && validUsers.some(user => 
+                    user.name.toLowerCase() === value.toLowerCase()
+                );
                 break;
             case 'field2': // Date validation
                 isValid = value.length > 0;
                 break;
-            case 'field3': // Department validation
-                isValid = value.length >= 2;
-                break;
-            case 'field4': // Issue validation
+            case 'field3': // Report validation
                 isValid = value.length >= 10;
                 break;
         }
