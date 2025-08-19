@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchValidUsers() {
         try {
             console.log('Fetching valid users...');
-            const response = await fetch('http://localhost:5678/webhook-test/get-emp', {
+            const response = await fetch('http://localhost:5678/webhook/get-emp', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function simulateApiCall(data) {
         try {
             console.log('Sending data to webhook:', data);
-            const response = await fetch('http://localhost:5678/webhook-test/submit-report', {
+            const response = await fetch('http://localhost:5678/webhook/submit-report', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
